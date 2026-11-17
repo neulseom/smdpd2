@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구독체크 | 똑똑한 구독 관리</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#f3f4f6;color:#222;
+ font-family:Arial,"Malgun Gothic",sans-serif;
+}
+header{
+ background:#242424;color:white;
+ padding:27px 20px;text-align:center;
+}
+header h1{margin:0;font-size:30px}
+header p{color:#ccc;margin-bottom:0}
+main{max-width:1100px;margin:auto;padding:22px}
+.panel{
+ background:white;border-radius:15px;
+ padding:23px;margin-bottom:20px;
+ box-shadow:0 3px 12px #0000000b;
+}
+h2{font-size:21px;margin:0 0 18px}
+.stats{
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:15px;margin-bottom:20px;
+}
+.stat{
+ background:white;padding:22px;
+ border-radius:15px;text-align:center;
+}
+.stat span{color:#777;font-size:14px}
+.stat strong{
+ display:block;font-size:25px;
+ margin-top:12px;word-break:break-word;
+}
+.form-grid{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:15px;
+}
+label{display:block;font-size:14px;font-weight:bold;margin-bottom:7px}
+input,select{
+ width:100%;padding:12px;
+ border:1px solid #ccc;border-radius:8px;
+ font-size:15px;background:white;color:#222;
+}
+button{
+ border:0;border-radius:8px;
+ padding:12px 17px;cursor:pointer;
+ font-size:14px;font-weight:bold;
+}
+button:hover{opacity:.8}
+.primary{background:#252525;color:white}
+.secondary{background:#e5e5e5;color:#222}
+.danger{background:#f1dddd;color:#8b2424}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.cards{
+ display:grid;grid-template-columns:repeat(2,1fr);gap:15px;
+}
+.sub-card{
+ border:1px solid #ddd;border-radius:12px;
+ padding:18px;background:#fff;
+}
+.sub-head{
+ display:flex;align-items:center;gap:12px;
+ margin-bottom:15px;
+}
+.logo{
+ width:45px;height:45px;border-radius:11px;
+ background:#333;color:white;
+ display:grid;place-items:center;
+ font-size:19px;font-weight:bold;
+}
+.sub-head h3{margin:0 0 5px}
+.small{font-size:13px;color:#777}
+.price{font-size:23px;font-weight:bold;margin:12px 0}
+.tag{
+ display:inline-block;padding:6px 10px;
+ border-radius:6px;background:#eee;
+ font-size:12px;margin-bottom:10px;
+}
+.warning{background:#ffe6e6;color:#9d2929}
+.good{background:#e4f1e7;color:#25613c}
+.notice{
+ padding:14px;background:#f4f4f4;
+ border-left:4px solid #555;
+ margin:10px 0;border-radius:5px;
+ line-height:1.6;
+}
+.notice.alert{border-color:#b33;background:#fff2f2}
+table{width:100%;border-collapse:collapse}
+th,td{
+ text-align:left;padding:12px;
+ border-bottom:1px solid #ddd;
+}
+th{background:#f5f5f5}
+.table-wrap{overflow-x:auto}
+.empty{text-align:center;color:#777;padding:25px}
+footer{text-align:center;padding:25px;color:#888;font-size:13px}
+@media(max-width:650px){
+ .stats{grid-template-columns:1fr}
+ .cards,.form-grid{grid-template-columns:1fr}
+ main{padding:12px}
+ .stat strong{font-size:23px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <h1>구독체크</h1>
+ <p>내 구독을 한눈에, 불필요한 지출은 줄이자!</p>
+</header>
+
+<main>
+ <div class="stats">
+  <div class="stat">
+   <span>월 구독료 합계</span>
+   <strong id="monthly">0원</strong>
+  </div>
+  <div class="stat">
+   <span>연간 예상 구독료</span>
+   <strong id="yearly">0원</strong>
+  </div>
+  <div class="stat">
+   <span>관리 중인 구독</span>
+   <strong id="count">0개</strong>
+  </div>
+ </div>
+
+ <section class="panel">
+  <h2>➕ 구독 서비스 등록</h2>
+  <div class="form-grid">
+   <div>
+    <label for="service">구독 서비스</label>
+    <select id="service" onchange="chooseService()">
+     <option value="">서비스 선택</option>
+     <option>유튜브 프리미엄</option>
+     <option>넷플릭스</option>
+     <option>디즈니+</option>
+     <option>스포티파이</option>
+     <option>티빙</option>
+     <option>쿠팡 와우</option>
+     <option>멜론</option>
+     <option>기타</option>
+    </select>
+   </div>
+   <div>
+    <label for="custom">직접 입력 (기타 선택 시)</label>
+    <input id="custom" placeholder="서비스 이름" disabled>
+   </div>
+   <div>
+    <label for="price">월 구독료 (원)</label>
+    <input type="number" id="price" min="0" placeholder="예: 14900">
+   </div>
+   <div>
+    <label for="usage">최근 30일 이용 횟수</label>
+    <input type="number" id="usage" min="0" placeholder="예: 3">
+   </div>
+   <div>
+    <label for="date">다음 결제일</label>
+    <input type="date" id="date">
+   </div>
+   <div>
+    <label for="category">구독 종류</label>
+    <select id="category">
+     <option>영상</option>
+     <option>음악</option>
+     <option>쇼핑</option>
+     <option>기타</option>
+    </select>
+   </div>
+  </div>
+  <div class="actions">
+   <button class="primary" onclick="addSubscription()">구독 등록하기</button>
+   <button class="secondary" onclick="loadExamples()">예시 데이터 불러오기</button>
+  </div>
+  <p class="small">※ 구독료와 이용 횟수는 직접 입력하는 방식입니다. 실제 계정과 자동 연동되지는 않습니다.</p>
+ </section>
+
+ <section class="panel">
+  <h2>📋 나의 구독 목록</h2>
+  <div id="subscriptionList" class="cards"></div>
+ </section>
+
+ <section class="panel">
+  <h2>🤖 스마트 구독 분석</h2>
+  <div id="analysis"></div>
+ </section>
+
+ <section class="panel">
+  <h2>🔔 결제일 알림</h2>
+  <div id="notifications"></div>
+ </section>
+
+ <section class="panel">
+  <h2>📊 구독료 비교</h2>
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr>
+      <th>서비스</th>
+      <th>월 요금</th>
+      <th>연간 비용</th>
+      <th>이용 횟수</th>
+      <th>1회당 비용</th>
+     </tr>
+    </thead>
+    <tbody id="comparison"></tbody>
+   </table>
+  </div>
+ </section>
+
+ <section class="panel">
+  <h2>💰 구독 절약 시뮬레이터</h2>
+  <p>사용하지 않는 구독을 정리하면 얼마나 절약할 수 있을까요?</p>
+  <div class="stats" style="margin-bottom:0">
+   <div class="stat" style="background:#f5f5f5">
+    <span>취소 추천 구독</span>
+    <strong id="cancelCount">0개</strong>
+   </div>
+   <div class="stat" style="background:#f5f5f5">
+    <span>월 절약 가능액</span>
+    <strong id="savingMonth">0원</strong>
+   </div>
+   <div class="stat" style="background:#f5f5f5">
+    <span>연간 절약 가능액</span>
+    <strong id="savingYear">0원</strong>
+   </div>
+  </div>
+ </section>
+
+ <section class="panel">
+  <h2>⚙️ 데이터 관리</h2>
+  <p class="small">입력한 구독 정보는 현재 브라우저에 저장됩니다.</p>
+  <button class="danger" onclick="clearAll()">모든 구독 삭제</button>
+ </section>
+</main>
+
+<footer>구독체크 © 2026 | AI 해커톤 프로젝트</footer>
+
+<script>
+const STORAGE_KEY="subscription-check-v1";
+const prices={
+ "유튜브 프리미엄":14900,
+ "넷플릭스":17000,
+ "디즈니+":9900,
+ "스포티파이":11990,
+ "티빙":9500,
+ "쿠팡 와우":7890,
+ "멜론":10900
+};
+// 위 금액은 시연용 예시이며 실제 요금과 다를 수 있습니다.
+
+const categories={
+ "유튜브 프리미엄":"영상",
+ "넷플릭스":"영상",
+ "디즈니+":"영상",
+ "스포티파이":"음악",
+ "티빙":"영상",
+ "쿠팡 와우":"쇼핑",
+ "멜론":"음악"
+};
+
+let subscriptions=[];
+try{
+ const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
+ if(Array.isArray(saved)) subscriptions=saved;
+}catch(e){subscriptions=[];}
+
+const won=n=>Math.round(n).toLocaleString("ko-KR")+"원";
+const el=id=>document.getElementById(id);
+
+function localDate(d){
+ return d.getFullYear()+"-"+
+ String(d.getMonth()+1).padStart(2,"0")+"-"+
+ String(d.getDate()).padStart(2,"0");
+}
+function nextDate(days){
+ const d=new Date();
+ d.setHours(12,0,0,0);
+ d.setDate(d.getDate()+days);
+ return localDate(d);
+}
+function dateDiff(dateString){
+ const now=new Date();
+ const target=new Date(dateString+"T12:00:00");
+ now.setHours(12,0,0,0);
+ return Math.round((target-now)/86400000);
+}
+function escapeHTML(str){
+ return String(str).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",
+ '"':"&quot;","'":"&#39;"
+ })[c]);
+}
+function chooseService(){
+ const name=el("service").value;
+ el("custom").disabled=name!=="기타";
+ el("custom").value="";
+ el("price").value=prices[name]??"";
+ el("category").value=categories[name]??"기타";
+}
+function save(){
+ localStorage.setItem(STORAGE_KEY,JSON.stringify(subscriptions));
+ render();
+}
+function addSubscription(){
+ let name=el("service").value;
+ if(name==="기타")name=el("custom").value.trim();
+ const rawPrice=el("price").value;
+ const rawUsage=el("usage").value;
+ const price=Number(rawPrice);
+ const usage=Number(rawUsage);
+ const date=el("date").value;
+
+ if(!name){alert("구독 서비스를 선택해 주세요.");return;}
+ if(rawPrice===""||!Number.isFinite(price)||price<=0){
+  alert("올바른 월 구독료를 입력해 주세요.");return;
+ }
+ if(rawUsage===""||!Number.isInteger(usage)||usage<0){
+  alert("최근 30일 이용 횟수를 0 이상의 정수로 입력해 주세요.");
+  return;
+ }
+ if(!date||dateDiff(date)<0){
+  alert("오늘 또는 미래의 결제일을 선택해 주세요.");
+  return;
+ }
+ if(subscriptions.some(s=>s.name===name)){
+  alert("이미 등록된 서비스입니다.");return;
+ }
+ subscriptions.push({
+  id:Date.now()+Math.random(),
+  name,price,usage,date,
+  category:el("category").value
+ });
+ save();
+ el("service").value="";
+ el("custom").value="";
+ el("custom").disabled=true;
+ el("price").value="";
+ el("usage").value="";
+ el("date").value=nextDate(7);
+ alert("구독 서비스가 등록되었습니다!");
+}
+function removeSubscription(id){
+ if(!confirm("이 구독을 목록에서 삭제할까요?"))return;
+ subscriptions=subscriptions.filter(s=>s.id!==id);
+ save();
+}
+function updateUsage(id){
+ const s=subscriptions.find(s=>s.id===id);
+ if(!s)return;
+ const value=prompt("최근 30일 이용 횟수를 입력하세요.",s.usage);
+ if(value===null)return;
+ const n=Number(value);
+ if(value.trim()===""||!Number.isInteger(n)||n<0){
+  alert("0 이상의 정수를 입력하세요.");return;
+ }
+ s.usage=n;
+ save();
+}
+function updateDate(id){
+ const s=subscriptions.find(s=>s.id===id);
+ if(!s)return;
+ const value=prompt("다음 결제일 (YYYY-MM-DD)",s.date);
+ if(value===null)return;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||
+    !Number.isFinite(Date.parse(value+"T12:00:00"))||
+    dateDiff(value)<0){
+  alert("오늘 이후의 올바른 날짜를 입력하세요.");return;
+ }
+ s.date=value;
+ save();
+}
+function loadExamples(){
+ if(subscriptions.length&&!confirm(
+ "기존 구독 목록을 예시 데이터로 교체할까요?"
+ ))return;
+ const examples=[
+  ["유튜브 프리미엄",14900,25,3,"영상"],
+  ["넷플릭스",17000,2,5,"영상"],
+  ["디즈니+",9900,0,2,"영상"],
+  ["스포티파이",11990,18,12,"음악"],
+  ["티빙",9500,1,1,"영상"],
+  ["쿠팡 와우",7890,10,9,"쇼핑"]
+ ];
+ subscriptions=examples.map((s,i)=>({
+  id:Date.now()+i,
+  name:s[0],price:s[1],usage:s[2],
+  date:nextDate(s[3]),category:s[4]
+ }));
+ save();
+}
+function clearAll(){
+ if(!confirm("모든 구독 정보를 삭제하시겠습니까?"))return;
+ subscriptions=[];
+ save();
+}
+function getStatus(s){
+ if(s.usage===0)return ["미사용 · 취소 추천","warning"];
+ if(s.usage<=2)return ["낮은 이용률 · 검토 추천","warning"];
+ return ["이용 중","good"];
+}
+function render(){
+ const total=subscriptions.reduce((a,s)=>a+s.price,0);
+ el("monthly").textContent=won(total);
+ el("yearly").textContent=won(total*12);
+ el("count").textContent=subscriptions.length+"개";
+
+ const list=el("subscriptionList");
+ list.innerHTML="";
+ if(!subscriptions.length){
+  list.innerHTML='<div class="empty">등록된 구독이 없습니다. 구독을 추가해 보세요!</div>';
+ }
+ subscriptions.forEach(s=>{
+  const [status,cls]=getStatus(s);
+  const card=document.createElement("div");
+  card.className="sub-card";
+  card.innerHTML=`
+   <div class="sub-head">
+    <div class="logo">${escapeHTML(s.name.charAt(0))}</div>
+    <div>
+     <h3>${escapeHTML(s.name)}</h3>
+     <span class="small">${escapeHTML(s.category)}</span>
+    </div>
+   </div>
+   <div class="price">${won(s.price)} <span class="small">/ 월</span></div>
+   <div class="tag ${cls}">${status}</div>
+   <p>최근 30일 이용: <b>${s.usage}회</b></p>
+   <p>1회 이용 비용: <b>${s.usage?won(s.price/s.usage):"계산 불가"}</b></p>
+   <p>다음 결제일: <b>${escapeHTML(s.date)}</b></p>
+   <div class="actions">
+    <button class="secondary usage-btn">이용 횟수 수정</button>
+    <button class="secondary date-btn">결제일 수정</button>
+    <button class="danger delete-btn">삭제</button>
+   </div>`;
+  card.querySelector(".usage-btn").onclick=()=>updateUsage(s.id);
+  card.querySelector(".date-btn").onclick=()=>updateDate(s.id);
+  card.querySelector(".delete-btn").onclick=()=>removeSubscription(s.id);
+  list.appendChild(card);
+ });
+
+ const recommended=subscriptions.filter(s=>s.usage<=2);
+ const saving=recommended.reduce((a,s)=>a+s.price,0);
+ el("cancelCount").textContent=recommended.length+"개";
+ el("savingMonth").textContent=won(saving);
+ el("savingYear").textContent=won(saving*12);
+
+ const analysis=el("analysis");
+ analysis.innerHTML="";
+ if(!subscriptions.length){
+  analysis.innerHTML='<p class="empty">구독을 등록하면 분석 결과가 표시됩니다.</p>';
+ }else if(!recommended.length){
+  analysis.innerHTML='<div class="notice">현재 이용 횟수가 매우 적은 구독이 없습니다. 잘 관리하고 있어요!</div>';
+ }else{
+  recommended.forEach(s=>{
+   const box=document.createElement("div");
+   box.className="notice alert";
+   box.innerHTML=`
+    <b>${escapeHTML(s.name)}</b><br>
+    최근 30일 이용 ${s.usage}회 · 월 ${won(s.price)}<br>
+    ${s.usage===0?"최근 이용 기록이 없어요.":"이용 횟수가 적어요."}
+    계속 필요한 서비스인지 확인해 보세요.<br>
+    <b>해지 시 연간 최대 ${won(s.price*12)} 절약 가능</b>`;
+   analysis.appendChild(box);
+  });
+ }
+
+ const notifications=el("notifications");
+ notifications.innerHTML="";
+ let upcoming=0;
+ subscriptions.forEach(s=>{
+  const diff=dateDiff(s.date);
+  if(diff>=0&&diff<=3){
+   upcoming++;
+   const box=document.createElement("div");
+   box.className="notice alert";
+   box.textContent=s.name+" : "+
+    (diff===0?"오늘 결제 예정":diff+"일 후 결제 예정")+
+    " · "+won(s.price);
+   notifications.appendChild(box);
+  }
+ });
+ if(!upcoming){
+  notifications.innerHTML='<div class="notice">3일 이내 결제 예정인 구독이 없습니다.</div>';
+ }
+
+ const tbody=el("comparison");
+ tbody.innerHTML="";
+ const sorted=[...subscriptions].sort((a,b)=>b.price-a.price);
+ sorted.forEach(s=>{
+  const tr=document.createElement("tr");
+  [
+   s.name,won(s.price),won(s.price*12),
+   s.usage+"회",s.usage?won(s.price/s.usage):"-"
+  ].forEach(value=>{
+   const td=document.createElement("td");
+   td.textContent=value;
+   tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+ });
+ if(!sorted.length){
+  tbody.innerHTML='<tr><td colspan="5" class="empty">비교할 구독이 없습니다.</td></tr>';
+ }
+}
+el("date").value=nextDate(7);
+render();
+</script>
+</body>
+</html>
